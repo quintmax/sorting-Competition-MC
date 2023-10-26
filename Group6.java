@@ -9,30 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 public class Group6 {
-	private static class Bucket {
-		int primeS = 0;
-		ArrayList<String> arr = new ArrayList<String>();
-
-		public Bucket(int z, ArrayList<String> ars) {
-			primeS = z;
-			arr = ars;
-		}
-
-		public int getPS() {
-			return primeS;
-		}
-
-		public void add(String s) {
-			arr.add(s);
-		}
-
-		public ArrayList<String> getarr() {
-			return arr;
-		}
-	}
-
 	public static void main(String[] args) throws InterruptedException, FileNotFoundException {
 
 		if (args.length < 2) {
@@ -90,53 +69,38 @@ public class Group6 {
 	// a file in the exact same format that my program outputs
 	private static void sort(String[] toSort) {
 		int x = 0;
-		ArrayList<Bucket> bucket = new ArrayList<Bucket>();
+
+		TreeMap<Integer, ArrayList<String>> bucketMap = new TreeMap<>();
+
 		while (x < toSort.length) {
 			int primeSum = SortingCompetitionComparator.getSumPrimeFactors(Integer.parseInt(toSort[x]));
-			for (int y = 0; y < bucket.size(); ++y) {
-				if (primeSum == bucket.get(y).getPS()) {
-					bucket.get(y).add(toSort[x]);
-					primeSum = -1;
-				}
+			
+			// Find or create the appropriate bucket in the TreeMap
+			ArrayList<String> currentBucket = bucketMap.get(primeSum);
+			if (currentBucket == null) {
+				currentBucket = new ArrayList<>();
+				bucketMap.put(primeSum, currentBucket);
 			}
-			if (primeSum != -1) {
-				bucket.add(new Bucket(primeSum, new ArrayList<String>()));
-				bucket.get(bucket.size() - 1).add(toSort[x]);
+			// Find the index to insert the element in sorted order within the bucket
+			int index = 0;
+			while (index < currentBucket.size() && toSort[x].compareTo(currentBucket.get(index)) < 0) {
+				index++;
 			}
-			++x;
-
-		}
-		Collections.sort(bucket, new Comparator<Bucket>() {
-			@Override
-			public int compare(Bucket s1, Bucket s2) {
-				int sum1 = s1.getPS();
-				int sum2 = s2.getPS();
-
-				if (sum1 < sum2) {
-					return -1;
-				} else {
-					return 1;
-				}
-
-			}
-		});
-		// Sort the elements of each bucket
-		for (int i = 0; i < bucket.size(); i++) {
-			Collections.sort((bucket.get(i).getarr()), Collections.reverseOrder());
+			currentBucket.add(index, toSort[x]);
+			x++;
 		}
 
 		// Get the sorted array
 		int index = 0;
-		for (int i = 0; i < bucket.size(); i++) {
-			for (int j = 0, size = bucket.get(i).getarr().size(); j < size; j++) {
-				toSort[index++] = bucket.get(i).getarr().get(j);
+		for (ArrayList<String> bucketContents : bucketMap.values()) {
+			for (String item : bucketContents) {
+				toSort[index++] = item;
 			}
 		}
 
 		return;
 	}
 
-	// Arrays.sort(toSort, new SortingCompetitionComparator());
 
 	private static class SortingCompetitionComparator implements Comparator<String> {
 
