@@ -73,26 +73,21 @@ public class Group6 {
 		TreeMap<Integer, ArrayList<String>> bucketMap = new TreeMap<>();
 
 		while (x < toSort.length) {
-			int primeSum = SortingCompetitionComparator.getSumPrimeFactors(Integer.parseInt(toSort[x]));
-			
+			int primeSum = getSumPrimeFactors(Integer.parseInt(toSort[x]));
 			// Find or create the appropriate bucket in the TreeMap
 			ArrayList<String> currentBucket = bucketMap.get(primeSum);
 			if (currentBucket == null) {
 				currentBucket = new ArrayList<>();
 				bucketMap.put(primeSum, currentBucket);
 			}
-			// Find the index to insert the element in sorted order within the bucket
-			int index = 0;
-			while (index < currentBucket.size() && toSort[x].compareTo(currentBucket.get(index)) < 0) {
-				index++;
-			}
-			currentBucket.add(index, toSort[x]);
+			currentBucket.add(toSort[x]);
 			x++;
 		}
 
 		// Get the sorted array
 		int index = 0;
 		for (ArrayList<String> bucketContents : bucketMap.values()) {
+			Collections.sort(bucketContents, Collections.reverseOrder());
 			for (String item : bucketContents) {
 				toSort[index++] = item;
 			}
@@ -101,6 +96,28 @@ public class Group6 {
 		return;
 	}
 
+	private static int getSumPrimeFactors(int n) {
+			int sum = 0;
+			int limit = (int) Math.sqrt(n);
+
+			for (int prime = 2; prime <= limit; prime++) {
+				while (n % prime == 0) {
+					sum += prime;
+					n /= prime;
+
+					// Skip multiple occurrences of the same prime factor
+					while (n % prime == 0) {
+						n /= prime;
+					}
+				}
+			}
+
+			if (n > 1) {
+				sum += n;  // n is a prime number greater than the limit
+			}
+
+			return sum;
+		}
 
 	private static class SortingCompetitionComparator implements Comparator<String> {
 
@@ -123,23 +140,22 @@ public class Group6 {
 			return num2 - num1;
 
 		}
-		//
 
 		private static int getSumPrimeFactors(int n) {
-			if (n == 1 || n == 0)
-				return 0; // special cases: don't have prime factors
+		if (n == 1 || n == 0)
+		return 0; // special cases: don't have prime factors
 
-			int sum = 0;
-			// checking all numbers until n, including n itself
-			// since n can itself be prime
-			for (int i = 2; i <= n; ++i) {
-				// if i divides n and is prime, add it to the sum
-				if (n % i == 0 && isPrime(i)) {
-					sum += i;
-				}
-			}
+		int sum = 0;
+		// checking all numbers until n, including n itself
+		// since n can itself be prime
+		for (int i = 2; i <= n; ++i) {
+		// if i divides n and is prime, add it to the sum
+		if (n % i == 0 && isPrime(i)) {
+		sum += i;
+		}
+		}
 
-			return sum;
+		return sum;
 		}
 
 		private static boolean isPrime(int n) {
